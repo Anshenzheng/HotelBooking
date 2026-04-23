@@ -1,0 +1,148 @@
+<div class="dashboard-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">仪表盘</h1>
+      <p class="page-subtitle">实时查看酒店运营数据</p>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <ng-container *ngIf="!loading">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon primary">
+          <span>🏨</span>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats.totalRooms }}</div>
+          <div class="stat-label">总房间数</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon success">
+          <span>✅</span>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats.availableRooms }}</div>
+          <div class="stat-label">空闲房间</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon danger">
+          <span>🛏️</span>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats.occupiedRooms }}</div>
+          <div class="stat-label">已入住</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon warning">
+          <span>📝</span>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats.pendingReservations }}</div>
+          <div class="stat-label">待处理预订</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon primary">
+          <span>👥</span>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stats.checkedInCount }}</div>
+          <div class="stat-label">今日在住</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon success">
+          <span>💰</span>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">¥{{ stats.todayRevenue | number:'1.0-2' }}</div>
+          <div class="stat-label">今日营收</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-header">
+            <span>房态概览</span>
+          </div>
+          <div class="card-body">
+            <div *ngIf="rooms.length === 0" class="empty-state">
+              <div class="empty-state-icon">🏠</div>
+              <div class="empty-state-title">暂无房间数据</div>
+              <div class="empty-state-subtitle">请先添加房间信息</div>
+            </div>
+
+            <div *ngIf="rooms.length > 0" class="room-grid">
+              <div *ngFor="let room of rooms" class="room-card">
+                <div class="room-header">
+                  <span class="room-number">{{ room.roomNumber }}</span>
+                  <span class="badge {{ getStatusBadgeClass(room.status) }}">
+                    {{ getStatusText(room.status) }}
+                  </span>
+                </div>
+                <div class="room-body">
+                  <div class="room-type">{{ room.roomType?.name || '标准间' }}</div>
+                  <div class="room-floor">{{ room.floor }}层</div>
+                  <div class="room-price">¥{{ room.roomType?.price || 0 }}/晚</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-header">
+            <span>快捷操作</span>
+          </div>
+          <div class="card-body">
+            <div class="quick-actions">
+              <a routerLink="/reservations/create" class="quick-action-item">
+                <div class="quick-action-icon primary">
+                  <span>➕</span>
+                </div>
+                <div class="quick-action-text">新建预订</div>
+              </a>
+
+              <a routerLink="/room-status" class="quick-action-item">
+                <div class="quick-action-icon success">
+                  <span>📅</span>
+                </div>
+                <div class="quick-action-text">房态视图</div>
+              </a>
+
+              <a routerLink="/reservations" class="quick-action-item">
+                <div class="quick-action-icon warning">
+                  <span>📝</span>
+                </div>
+                <div class="quick-action-text">预订管理</div>
+              </a>
+
+              <a routerLink="/orders" class="quick-action-item">
+                <div class="quick-action-icon danger">
+                  <span>💰</span>
+                </div>
+                <div class="quick-action-text">订单管理</div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

@@ -1,0 +1,292 @@
+<div class="reservation-list-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">预订管理</h1>
+      <p class="page-subtitle">管理所有预订记录</p>
+    </div>
+    <a routerLink="/reservations/create" class="btn btn-primary">
+      <span>➕</span>
+      <span>新建预订</span>
+    </a>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" class="form-control" placeholder="搜索预订号、客人姓名、房间号..." [(ngModel)]="searchTerm">
+    <select class="form-control" [(ngModel)]="statusFilter">
+      <option value="">全部状态</option>
+      <option value="PENDING">待确认</option>
+      <option value="CONFIRMED">已确认</option>
+      <option value="CHECKED_IN">已入住</option>
+      <option value="COMPLETED">已完成</option>
+      <option value="CANCELLED">已取消</option>
+    </select>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <div *ngIf="!loading">
+    <div *ngIf="filteredReservations.length === 0" class="empty-state">
+      <div class="empty-state-icon">📝</div>
+      <div class="empty-state-title">暂无预订记录</div>
+      <div class="empty-state-subtitle">点击上方按钮创建第一个预订</div>
+    </div>
+
+    <div *ngIf="filteredReservations.length > 0" class="reservation-cards">
+      <div *ngFor="let res of filteredReservations" class="reservation-card card">
+        <div class="reservation-header">
+          <div class="reservation-info">
+            <span class="reservation-no">{{ res.reservationNo }}</span>
+            <span class="badge {{ getStatusBadgeClass(res.status) }}">
+              {{ getStatusText(res.status) }}
+            </span>
+          </div>
+          <div class="reservation-amount">
+            <span class="amount-label">总金额</span>
+            <span class="amount-value">¥{{ res.totalAmount | number:'1.0-2' }}</span>
+          </div>
+        </div>
+
+        <div class="reservation-body">
+          <div class="detail-row">
+            <div class="detail-item">
+              <span class="detail-label">客人</span>
+              <span class="detail-value">{{ res.guest?.name }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">房间</span>
+              <span class="detail-value">{{ res.room?.roomNumber }} ({{ res.room?.roomType?.name }})</span>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-item">
+              <span class="detail-label">入住日期</span>
+              <span class="detail-value">{{ res.checkInDate }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">退房日期</span>
+              <span class="detail-value">{{ res.checkOutDate }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">晚数</span>
+              <span class="detail-value">{{ res.days }}晚</span>
+            </div>
+          </div>
+
+          <div class="payment-info">
+            <span class="payment-label">已支付：</span>
+            <span class="payment-paid">¥{{ res.paidAmount | number:'1.0-2' }}</span>
+            <span class="payment-divider">/</span>
+            <span class="payment-total">¥{{ res.totalAmount | number:'1.0-2' }}</span>
+            <span *ngIf="res.paidAmount < res.totalAmount" class="payment-remaining">
+              (待付 ¥{{ res.totalAmount - res.paidAmount | number:'1.0-2' }})
+            </span>
+          </div>
+
+          <div *ngIf="res.specialRequest" class="special-request">
+            <span class="request-label">特殊要求：</span>
+            <span class="request-text">{{ res.specialRequest }}</span>
+          </div>
+        </div>
+
+        <div class="reservation-actions">
+          <button class="btn btn-sm btn-secondary" (click)="openDetail(res)">查看详情</button>
+          
+          <ng-container *ngIf="res.status === 'PENDING'">
+            <button class="btn btn-sm btn-info" (click)="confirmReservation(res)">确认预订</button>
+            <button class="btn btn-sm btn-danger" (click)="cancelReservation(res)">取消</button>
+          </ng-container>
+
+          <ng-container *ngIf="res.status === 'CONFIRMED'">
+            <button class="btn btn-sm btn-success" (click)="checkIn(res)">办理入住</button>
+            <button class="btn btn-sm btn-danger" (click)="cancelReservation(res)">取消</button>
+          </ng-container>
+
+          <ng-container *ngIf="res.status === 'CHECKED_IN'">
+            <button class="btn btn-sm btn-success" (click)="checkOut(res)">办理退房</button>
+          </ng-container>
+
+          <ng-container *ngIf="res.status !== 'COMPLETED' && res.status !== 'CANCELLED' && res.paidAmount < res.totalAmount">
+            <button class="btn btn-sm btn-primary" (click)="openPaymentModal(res)">支付</button>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showDetail && selectedReservation" class="modal-overlay" (click)="closeDetail()">
+    <div class="modal" (click)="$event.stopPropagation()" style="max-width: 700px;">
+      <div class="modal-header">
+        <span class="modal-title">预订详情 - {{ selectedReservation.reservationNo }}</span>
+        <div class="modal-close" (click)="closeDetail()">✕</div>
+      </div>
+      <div class="modal-body">
+        <div class="detail-section">
+          <h4 class="section-title">基本信息</h4>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">预订状态</span>
+              <span class="badge {{ getStatusBadgeClass(selectedReservation.status) }}">
+                {{ getStatusText(selectedReservation.status) }}
+              </span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">创建时间</span>
+              <span class="detail-value">{{ selectedReservation.createdAt | date:'yyyy-MM-dd HH:mm' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h4 class="section-title">客人信息</h4>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">姓名</span>
+              <span class="detail-value">{{ selectedReservation.guest?.name }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">身份证号</span>
+              <span class="detail-value">{{ selectedReservation.guest?.idCard }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">联系电话</span>
+              <span class="detail-value">{{ selectedReservation.guest?.phone || '-' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">联系人</span>
+              <span class="detail-value">{{ selectedReservation.contactPerson || selectedReservation.guest?.name }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h4 class="section-title">房间信息</h4>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">房间号</span>
+              <span class="detail-value">{{ selectedReservation.room?.roomNumber }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">房型</span>
+              <span class="detail-value">{{ selectedReservation.room?.roomType?.name }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">房价</span>
+              <span class="detail-value">¥{{ selectedReservation.roomPrice | number:'1.0-2' }}/晚</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">楼层</span>
+              <span class="detail-value">{{ selectedReservation.room?.floor }}层</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h4 class="section-title">入住信息</h4>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">入住日期</span>
+              <span class="detail-value">{{ selectedReservation.checkInDate }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">退房日期</span>
+              <span class="detail-value">{{ selectedReservation.checkOutDate }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">入住晚数</span>
+              <span class="detail-value">{{ selectedReservation.days }}晚</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h4 class="section-title">费用信息</h4>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">总金额</span>
+              <span class="detail-value amount-large">¥{{ selectedReservation.totalAmount | number:'1.0-2' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">已支付</span>
+              <span class="detail-value amount-paid">¥{{ selectedReservation.paidAmount | number:'1.0-2' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">待支付</span>
+              <span class="detail-value amount-pending">¥{{ selectedReservation.totalAmount - selectedReservation.paidAmount | number:'1.0-2' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="selectedReservation.specialRequest" class="detail-section">
+          <h4 class="section-title">特殊要求</h4>
+          <p class="request-text">{{ selectedReservation.specialRequest }}</p>
+        </div>
+
+        <div *ngIf="selectedReservation.remark" class="detail-section">
+          <h4 class="section-title">备注</h4>
+          <p class="request-text">{{ selectedReservation.remark }}</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDetail()">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showPaymentModal && selectedReservation" class="modal-overlay" (click)="closePaymentModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <span class="modal-title">模拟支付</span>
+        <div class="modal-close" (click)="closePaymentModal()">✕</div>
+      </div>
+      <div class="modal-body">
+        <div class="payment-summary">
+          <div class="summary-item">
+            <span class="summary-label">预订号</span>
+            <span class="summary-value">{{ selectedReservation.reservationNo }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">总金额</span>
+            <span class="summary-value">¥{{ selectedReservation.totalAmount | number:'1.0-2' }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">已支付</span>
+            <span class="summary-value">¥{{ selectedReservation.paidAmount | number:'1.0-2' }}</span>
+          </div>
+          <div class="summary-item highlight">
+            <span class="summary-label">本次支付</span>
+            <span class="summary-value">¥{{ paymentAmount | number:'1.0-2' }}</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">支付方式</label>
+          <div class="payment-methods">
+            <div class="payment-method" [class.active]="paymentMethod === 'ALIPAY'" (click)="paymentMethod = 'ALIPAY'">
+              <span class="method-icon">💳</span>
+              <span class="method-name">支付宝</span>
+            </div>
+            <div class="payment-method" [class.active]="paymentMethod === 'WECHAT'" (click)="paymentMethod = 'WECHAT'">
+              <span class="method-icon">💬</span>
+              <span class="method-name">微信支付</span>
+            </div>
+            <div class="payment-method" [class.active]="paymentMethod === 'CREDIT_CARD'" (click)="paymentMethod = 'CREDIT_CARD'">
+              <span class="method-icon">💳</span>
+              <span class="method-name">信用卡</span>
+            </div>
+            <div class="payment-method" [class.active]="paymentMethod === 'CASH'" (click)="paymentMethod = 'CASH'">
+              <span class="method-icon">💵</span>
+              <span class="method-name">现金</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closePaymentModal()">取消</button>
+        <button type="button" class="btn btn-primary" (click)="processPayment()">确认支付</button>
+      </div>
+    </div>
+  </div>
+</div>

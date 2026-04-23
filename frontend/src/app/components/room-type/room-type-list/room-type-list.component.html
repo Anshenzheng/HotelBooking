@@ -1,0 +1,145 @@
+<div class="room-type-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">房型管理</h1>
+      <p class="page-subtitle">管理酒店所有房型信息</p>
+    </div>
+    <button class="btn btn-primary" (click)="openAddModal()">
+      <span>➕</span>
+      <span>添加房型</span>
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <div *ngIf="!loading">
+    <div *ngIf="roomTypes.length === 0" class="empty-state">
+      <div class="empty-state-icon">🏷️</div>
+      <div class="empty-state-title">暂无房型数据</div>
+      <div class="empty-state-subtitle">点击上方按钮添加第一个房型</div>
+    </div>
+
+    <div *ngIf="roomTypes.length > 0" class="room-types-grid">
+      <div *ngFor="let roomType of roomTypes" class="room-type-card card">
+        <div class="room-type-header">
+          <div>
+            <h3 class="room-type-name">{{ roomType.name }}</h3>
+            <span class="badge {{ getStatusBadgeClass(roomType.status) }}">
+              {{ getStatusText(roomType.status) }}
+            </span>
+          </div>
+          <div class="room-type-actions">
+            <button class="btn btn-sm btn-secondary" (click)="openEditModal(roomType)">编辑</button>
+            <button class="btn btn-sm btn-danger" (click)="deleteRoomType(roomType.id)" 
+                    *ngIf="roomType.status === 'ACTIVE'">删除</button>
+          </div>
+        </div>
+        <div class="room-type-body">
+          <p class="room-type-description" *ngIf="roomType.description">{{ roomType.description }}</p>
+          
+          <div class="room-type-stats">
+            <div class="stat-item">
+              <span class="stat-label">价格</span>
+              <span class="stat-value">¥{{ roomType.price }}/晚</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">面积</span>
+              <span class="stat-value">{{ roomType.area }}㎡</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">人数</span>
+              <span class="stat-value">{{ roomType.capacity }}人</span>
+            </div>
+            <div class="stat-item" *ngIf="roomType.bedType">
+              <span class="stat-label">床型</span>
+              <span class="stat-value">{{ roomType.bedType }}</span>
+            </div>
+          </div>
+
+          <div class="room-type-facilities" *ngIf="roomType.facilities">
+            <span class="facilities-label">设施：</span>
+            <span class="facilities-list">{{ roomType.facilities }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <span class="modal-title">{{ isEdit ? '编辑房型' : '添加房型' }}</span>
+        <div class="modal-close" (click)="closeModal()">✕</div>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label class="form-label">房型名称 *</label>
+            <input type="text" class="form-control" formControlName="name" 
+                   placeholder="请输入房型名称">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">描述</label>
+            <textarea class="form-control" formControlName="description" rows="3"
+                      placeholder="请输入房型描述"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">价格 (元/晚) *</label>
+              <input type="number" class="form-control" formControlName="price" min="0"
+                     placeholder="请输入价格">
+            </div>
+            <div class="form-group">
+              <label class="form-label">容纳人数 *</label>
+              <input type="number" class="form-control" formControlName="capacity" min="1"
+                     placeholder="请输入容纳人数">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">面积 (㎡)</label>
+              <input type="number" class="form-control" formControlName="area" min="0"
+                     placeholder="请输入面积">
+            </div>
+            <div class="form-group">
+              <label class="form-label">床型</label>
+              <select class="form-control" formControlName="status">
+                <option value="">请选择床型</option>
+                <option value="King Size">King Size</option>
+                <option value="Queen Size">Queen Size</option>
+                <option value="Twin">双床</option>
+                <option value="Single">单人床</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">设施配置</label>
+            <textarea class="form-control" formControlName="facilities" rows="2"
+                      placeholder="请输入设施配置，多个设施用逗号分隔"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">状态</label>
+            <select class="form-control" formControlName="status">
+              <option value="ACTIVE">启用</option>
+              <option value="INACTIVE">禁用</option>
+            </select>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">取消</button>
+            <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
+              {{ isEdit ? '保存' : '创建' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

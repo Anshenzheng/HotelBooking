@@ -1,0 +1,35 @@
+.room-list-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.room-number {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .search-bar {
+    flex-direction: column;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  table {
+    min-width: 600px;
+  }
+}

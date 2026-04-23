@@ -1,0 +1,140 @@
+<div class="room-status-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">房态视图</h1>
+      <p class="page-subtitle">实时查看所有房间状态</p>
+    </div>
+    <div class="date-selector">
+      <label class="form-label">查看日期：</label>
+      <input type="date" class="form-control" [(ngModel)]="selectedDate"
+             [value]="getDateString(selectedDate)">
+    </div>
+  </div>
+
+  <div class="status-legend">
+    <div class="legend-item">
+      <div class="status-indicator available"></div>
+      <span>空闲</span>
+    </div>
+    <div class="legend-item">
+      <div class="status-indicator occupied"></div>
+      <span>已入住</span>
+    </div>
+    <div class="legend-item">
+      <div class="status-indicator reserved"></div>
+      <span>已预订</span>
+    </div>
+    <div class="legend-item">
+      <div class="status-indicator maintenance"></div>
+      <span>维护中</span>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <div *ngIf="!loading">
+    <div *ngIf="rooms.length === 0" class="empty-state">
+      <div class="empty-state-icon">🏠</div>
+      <div class="empty-state-title">暂无房间数据</div>
+      <div class="empty-state-subtitle">请先添加房间信息</div>
+    </div>
+
+    <div *ngIf="rooms.length > 0" class="floor-sections">
+      <div *ngFor="let floor of floors" class="floor-section">
+        <div class="floor-header">
+          <span class="floor-title">{{ floor }}层</span>
+          <span class="floor-stats">
+            共 {{ roomsByFloor[floor].length }} 间 | 
+            空闲 {{ roomsByFloor[floor].filter(r => r.status === 'AVAILABLE').length }} 间
+          </span>
+        </div>
+        
+        <div class="rooms-grid">
+          <div *ngFor="let room of roomsByFloor[floor]" 
+               class="room-card {{ getStatusClass(room.status) }}"
+               (click)="openRoomDetail(room)">
+            <div class="room-header">
+              <span class="room-number">{{ room.roomNumber }}</span>
+            </div>
+            <div class="room-body">
+              <div class="room-type">{{ room.roomType?.name || '标准间' }}</div>
+              <div class="room-price">¥{{ room.roomType?.price || 0 }}</div>
+            </div>
+            <div class="room-footer">
+              <span class="status-badge {{ getStatusBadgeClass(room.status) }}">
+                {{ getStatusText(room.status) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showRoomDetail && selectedRoom" class="modal-overlay" (click)="closeRoomDetail()">
+    <div class="modal" (click)="$event.stopPropagation()" style="max-width: 600px;">
+      <div class="modal-header">
+        <span class="modal-title">房间 {{ selectedRoom.roomNumber }} 详情</span>
+        <div class="modal-close" (click)="closeRoomDetail()">✕</div>
+      </div>
+      <div class="modal-body">
+        <div class="room-detail-header">
+          <div class="room-info">
+            <div class="room-number-lg">{{ selectedRoom.roomNumber }}</div>
+            <div class="room-type-lg">{{ selectedRoom.roomType?.name }}</div>
+          </div>
+          <span class="badge {{ getStatusBadgeClass(selectedRoom.status) }}" style="font-size: 14px; padding: 8px 16px;">
+            {{ getStatusText(selectedRoom.status) }}
+          </span>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">楼层</span>
+            <span class="detail-value">{{ selectedRoom.floor }}层</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">价格</span>
+            <span class="detail-value">¥{{ selectedRoom.roomType?.price || 0 }}/晚</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">面积</span>
+            <span class="detail-value">{{ selectedRoom.roomType?.area || 0 }}㎡</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">容纳人数</span>
+            <span class="detail-value">{{ selectedRoom.roomType?.capacity || 0 }}人</span>
+          </div>
+        </div>
+
+        <div *ngIf="selectedRoom.remark" class="remark-section">
+          <span class="detail-label">备注</span>
+          <p>{{ selectedRoom.remark }}</p>
+        </div>
+
+        <div *ngIf="getRoomReservations(selectedRoom).length > 0" class="reservations-section">
+          <span class="detail-label">预订记录</span>
+          <div class="reservation-list">
+            <div *ngFor="let res of getRoomReservations(selectedRoom)" class="reservation-item">
+              <div class="reservation-info">
+                <span class="reservation-no">{{ res.reservationNo }}</span>
+                <span class="reservation-guest">{{ res.guest?.name }}</span>
+              </div>
+              <div class="reservation-dates">
+                {{ res.checkInDate }} 至 {{ res.checkOutDate }} ({{ res.days }}晚)
+              </div>
+              <span class="badge {{ res.status === 'CHECKED_IN' ? 'badge-danger' : 'badge-warning' }}">
+                {{ res.status === 'CHECKED_IN' ? '已入住' : '已确认' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeRoomDetail()">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>

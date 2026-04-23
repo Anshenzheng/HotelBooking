@@ -1,0 +1,128 @@
+<div class="room-list-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">房间管理</h1>
+      <p class="page-subtitle">管理酒店所有房间信息</p>
+    </div>
+    <button class="btn btn-primary" (click)="openAddModal()">
+      <span>➕</span>
+      <span>添加房间</span>
+    </button>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" class="form-control" placeholder="搜索房间号、房型..." [(ngModel)]="searchTerm">
+    <select class="form-control" [(ngModel)]="statusFilter">
+      <option value="">全部状态</option>
+      <option value="AVAILABLE">空闲</option>
+      <option value="OCCUPIED">已入住</option>
+      <option value="RESERVED">已预订</option>
+      <option value="MAINTENANCE">维护中</option>
+    </select>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <div *ngIf="!loading">
+    <div *ngIf="filteredRooms.length === 0" class="empty-state">
+      <div class="empty-state-icon">🚪</div>
+      <div class="empty-state-title">暂无房间数据</div>
+      <div class="empty-state-subtitle">点击上方按钮添加第一个房间</div>
+    </div>
+
+    <div *ngIf="filteredRooms.length > 0" class="card table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>房间号</th>
+            <th>楼层</th>
+            <th>房型</th>
+            <th>价格</th>
+            <th>状态</th>
+            <th>备注</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let room of filteredRooms">
+            <td>
+              <strong class="room-number">{{ room.roomNumber }}</strong>
+            </td>
+            <td>{{ room.floor }}层</td>
+            <td>{{ room.roomType?.name || '-' }}</td>
+            <td>¥{{ room.roomType?.price || 0 }}/晚</td>
+            <td>
+              <span class="badge {{ getStatusBadgeClass(room.status) }}">
+                {{ getStatusText(room.status) }}
+              </span>
+            </td>
+            <td>{{ room.remark || '-' }}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn btn-sm btn-secondary" (click)="openEditModal(room)">编辑</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <span class="modal-title">{{ isEdit ? '编辑房间' : '添加房间' }}</span>
+        <div class="modal-close" (click)="closeModal()">✕</div>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">房间号 *</label>
+              <input type="text" class="form-control" formControlName="roomNumber" 
+                     placeholder="例如：101">
+            </div>
+            <div class="form-group">
+              <label class="form-label">楼层 *</label>
+              <input type="number" class="form-control" formControlName="floor" min="1"
+                     placeholder="例如：1">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">房型 *</label>
+            <select class="form-control" formControlName="roomTypeId">
+              <option [value]="null">请选择房型</option>
+              <option *ngFor="let rt of roomTypes" [value]="rt.id">
+                {{ rt.name }} - ¥{{ rt.price }}/晚
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">状态</label>
+            <select class="form-control" formControlName="status">
+              <option value="AVAILABLE">空闲</option>
+              <option value="MAINTENANCE">维护中</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">备注</label>
+            <textarea class="form-control" formControlName="remark" rows="2"
+                      placeholder="输入备注信息"></textarea>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">取消</button>
+            <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
+              {{ isEdit ? '保存' : '创建' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
