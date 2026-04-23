@@ -190,24 +190,24 @@ public class ReservationService {
     @Transactional
     public Reservation cancelReservation(Long id) {
         Reservation reservation = getReservationById(id);
+        Reservation.Status originalStatus = reservation.getStatus();
         
-        if (reservation.getStatus() == Reservation.Status.COMPLETED || 
-            reservation.getStatus() == Reservation.Status.CANCELLED) {
+        if (originalStatus == Reservation.Status.COMPLETED || 
+            originalStatus == Reservation.Status.CANCELLED) {
             throw new BusinessException("该预订无法取消");
         }
         
-        if (reservation.getStatus() == Reservation.Status.CHECKED_IN) {
+        if (originalStatus == Reservation.Status.CHECKED_IN) {
             throw new BusinessException("客人已入住，请先办理退房");
         }
         
-        reservation.setStatus(Reservation.Status.CANCELLED);
-        
-        if (reservation.getStatus() == Reservation.Status.CONFIRMED || 
-            reservation.getStatus() == Reservation.Status.RESERVED) {
+        if (originalStatus == Reservation.Status.CONFIRMED) {
             Room room = reservation.getRoom();
             room.setStatus(Room.Status.AVAILABLE);
             roomRepository.save(room);
         }
+        
+        reservation.setStatus(Reservation.Status.CANCELLED);
         
         Order order = orderRepository.findByReservationId(id)
                 .orElseThrow(() -> new BusinessException("订单不存在"));
