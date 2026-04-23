@@ -27,7 +27,7 @@ export interface Room {
   id: number;
   roomNumber: string;
   floor: number;
-  roomType: RoomType;
+  roomType?: RoomType | null;
   status: 'AVAILABLE' | 'OCCUPIED' | 'MAINTENANCE' | 'RESERVED';
   remark: string;
   createdAt: string;
@@ -50,8 +50,8 @@ export interface Guest {
 export interface Reservation {
   id: number;
   reservationNo: string;
-  guest: Guest;
-  room: Room;
+  guest?: Guest | null;
+  room?: Room | null;
   checkInDate: string;
   checkOutDate: string;
   days: number;
@@ -59,12 +59,12 @@ export interface Reservation {
   totalAmount: number;
   paidAmount: number;
   status: 'PENDING' | 'CONFIRMED' | 'CHECKED_IN' | 'COMPLETED' | 'CANCELLED';
-  contactPerson: string;
-  contactPhone: string;
-  specialRequest: string;
-  remark: string;
+  contactPerson?: string | null;
+  contactPhone?: string | null;
+  specialRequest?: string | null;
+  remark?: string | null;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string | null;
 }
 
 export interface Order {

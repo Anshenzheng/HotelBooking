@@ -136,4 +136,10 @@ export class RoomStatusComponent implements OnInit {
   getDateString(date: Date): string {
     return date.toISOString().split('T')[0];
   }
+
+  getAvailableRoomsCount(floor: number): number {
+    const rooms = this.roomsByFloor[floor];
+    if (!rooms) return 0;
+    return rooms.filter(r => r.status === 'AVAILABLE').length;
+  }
 }
