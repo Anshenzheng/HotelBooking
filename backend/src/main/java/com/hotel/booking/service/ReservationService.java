@@ -68,20 +68,25 @@ public class ReservationService {
                     "该房间在 " + request.getCheckInDate() + " 至 " + request.getCheckOutDate() + " 期间已被预订");
         }
         
-        Guest guest = new Guest();
-        guest.setName(request.getGuestName());
-        guest.setIdCard(request.getGuestIdCard());
-        guest.setPhone(request.getGuestPhone());
-        guest.setEmail(request.getGuestEmail());
+        final String guestName = request.getGuestName();
+        final String guestIdCard = request.getGuestIdCard();
+        final String guestPhone = request.getGuestPhone();
+        final String guestEmail = request.getGuestEmail();
         
-        guest = guestRepository.findByIdCard(guest.getIdCard())
+        Guest newGuest = new Guest();
+        newGuest.setName(guestName);
+        newGuest.setIdCard(guestIdCard);
+        newGuest.setPhone(guestPhone);
+        newGuest.setEmail(guestEmail);
+        
+        Guest guest = guestRepository.findByIdCard(guestIdCard)
                 .map(existingGuest -> {
-                    existingGuest.setName(guest.getName());
-                    if (guest.getPhone() != null) existingGuest.setPhone(guest.getPhone());
-                    if (guest.getEmail() != null) existingGuest.setEmail(guest.getEmail());
+                    existingGuest.setName(guestName);
+                    if (guestPhone != null) existingGuest.setPhone(guestPhone);
+                    if (guestEmail != null) existingGuest.setEmail(guestEmail);
                     return guestRepository.save(existingGuest);
                 })
-                .orElseGet(() -> guestRepository.save(guest));
+                .orElseGet(() -> guestRepository.save(newGuest));
         
         long days = ChronoUnit.DAYS.between(request.getCheckInDate(), request.getCheckOutDate());
         BigDecimal roomPrice = room.getRoomType().getPrice();

@@ -46,7 +46,7 @@
         <div class="floor-header">
           <span class="floor-title">{{ floor }}层</span>
           <span class="floor-stats">
-            共 {{ roomsByFloor[floor]?.length || 0 }} 间 | 
+            共 {{ getTotalRoomsCount(floor) }} 间 | 
             空闲 {{ getAvailableRoomsCount(floor) }} 间
           </span>
         </div>

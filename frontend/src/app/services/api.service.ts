@@ -11,16 +11,16 @@ export interface ApiResponse<T> {
 export interface RoomType {
   id: number;
   name: string;
-  description: string;
+  description?: string | null;
   price: number;
-  capacity: number;
-  area: number;
-  bedType: string;
-  facilities: string;
-  imageUrl: string;
+  capacity?: number | null;
+  area?: number | null;
+  bedType?: string | null;
+  facilities?: string | null;
+  imageUrl?: string | null;
   status: 'ACTIVE' | 'INACTIVE';
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string | null;
 }
 
 export interface Room {
@@ -29,22 +29,22 @@ export interface Room {
   floor: number;
   roomType?: RoomType | null;
   status: 'AVAILABLE' | 'OCCUPIED' | 'MAINTENANCE' | 'RESERVED';
-  remark: string;
+  remark?: string | null;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string | null;
 }
 
 export interface Guest {
   id: number;
   name: string;
   idCard: string;
-  phone: string;
-  email: string;
-  address: string;
-  birthday: string;
-  gender: string;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+  birthday?: string | null;
+  gender?: string | null;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string | null;
 }
 
 export interface Reservation {
@@ -70,29 +70,29 @@ export interface Reservation {
 export interface Order {
   id: number;
   orderNo: string;
-  reservation: Reservation;
-  guest: Guest;
+  reservation?: Reservation | null;
+  guest?: Guest | null;
   totalAmount: number;
   paidAmount: number;
   status: 'PENDING' | 'PAID' | 'REFUNDED' | 'CANCELLED';
-  paymentMethod: string;
-  paidAt: string;
-  remark: string;
+  paymentMethod?: string | null;
+  paidAt?: string | null;
+  remark?: string | null;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string | null;
 }
 
 export interface Payment {
   id: number;
   paymentNo: string;
-  order: Order;
+  order?: Order | null;
   amount: number;
   paymentMethod: 'ALIPAY' | 'WECHAT' | 'CREDIT_CARD' | 'CASH' | 'BANK_TRANSFER';
   status: 'PENDING' | 'SUCCESS' | 'FAILED' | 'CANCELLED';
-  transactionId: string;
-  remark: string;
+  transactionId?: string | null;
+  remark?: string | null;
   createdAt: string;
-  completedAt: string;
+  completedAt?: string | null;
 }
 
 @Injectable({

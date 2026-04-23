@@ -216,15 +216,23 @@ export class ReservationCreateComponent implements OnInit {
     });
   }
 
-  get formErrors(): { [key: string]: string } {
-    return {
-      guestName: this.getErrorMessage('guestName', '客人姓名'),
-      guestIdCard: this.getErrorMessage('guestIdCard', '身份证号'),
-      guestPhone: '请输入有效的手机号码',
-      guestEmail: '请输入有效的邮箱地址',
-      checkInDate: '请选择有效的入住日期',
-      checkOutDate: '请选择有效的退房日期'
-    };
+  getFormError(fieldName: string): string {
+    switch (fieldName) {
+      case 'guestName':
+        return this.getErrorMessage('guestName', '客人姓名');
+      case 'guestIdCard':
+        return this.getErrorMessage('guestIdCard', '身份证号');
+      case 'guestPhone':
+        return '请输入有效的手机号码';
+      case 'guestEmail':
+        return '请输入有效的邮箱地址';
+      case 'checkInDate':
+        return '请选择有效的入住日期';
+      case 'checkOutDate':
+        return '请选择有效的退房日期';
+      default:
+        return '';
+    }
   }
 
   getErrorMessage(controlName: string, label: string): string {

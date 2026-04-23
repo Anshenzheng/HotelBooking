@@ -137,6 +137,11 @@ export class RoomStatusComponent implements OnInit {
     return date.toISOString().split('T')[0];
   }
 
+  getTotalRoomsCount(floor: number): number {
+    const rooms = this.roomsByFloor[floor];
+    return rooms ? rooms.length : 0;
+  }
+
   getAvailableRoomsCount(floor: number): number {
     const rooms = this.roomsByFloor[floor];
     if (!rooms) return 0;
