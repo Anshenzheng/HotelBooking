@@ -1,0 +1,297 @@
+.reservation-list-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.reservation-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+  gap: 24px;
+}
+
+.reservation-card {
+  overflow: hidden;
+}
+
+.reservation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-light);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+}
+
+.reservation-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reservation-no {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.reservation-amount {
+  text-align: right;
+}
+
+.amount-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: block;
+}
+
+.amount-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+.reservation-body {
+  padding: 20px 24px;
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.detail-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.payment-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+}
+
+.payment-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.payment-paid {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--success-color);
+}
+
+.payment-divider {
+  color: var(--text-muted);
+}
+
+.payment-total {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.payment-remaining {
+  font-size: 13px;
+  color: var(--danger-color);
+  font-weight: 500;
+}
+
+.special-request {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  background-color: rgba(243, 156, 18, 0.05);
+  border: 1px solid rgba(243, 156, 18, 0.2);
+  border-radius: var(--radius-md);
+}
+
+.request-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--warning-color);
+}
+
+.request-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.reservation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-light);
+  background-color: var(--bg-secondary);
+}
+
+.detail-section {
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.amount-large {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.amount-paid {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--success-color);
+}
+
+.amount-pending {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--danger-color);
+}
+
+.payment-summary {
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.summary-item.highlight {
+  padding-top: 12px;
+  margin-top: 8px;
+}
+
+.summary-item.highlight .summary-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+.summary-label {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.summary-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.payment-methods {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.payment-method {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.payment-method:hover {
+  border-color: var(--accent-color);
+  background-color: rgba(201, 169, 98, 0.05);
+}
+
+.payment-method.active {
+  border-color: var(--accent-color);
+  background-color: rgba(201, 169, 98, 0.1);
+}
+
+.method-icon {
+  font-size: 24px;
+}
+
+.method-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.payment-method.active .method-name {
+  color: var(--accent-color);
+}
+
+@media (max-width: 768px) {
+  .reservation-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-row {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-info {
+    flex-wrap: wrap;
+  }
+
+  .reservation-actions {
+    flex-direction: column;
+  }
+
+  .reservation-actions .btn {
+    width: 100%;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-methods {
+    grid-template-columns: 1fr;
+  }
+}

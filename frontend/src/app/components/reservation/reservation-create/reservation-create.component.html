@@ -1,0 +1,186 @@
+<div class="reservation-create-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">新建预订</h1>
+      <p class="page-subtitle">创建新的客房预订</p>
+    </div>
+    <a routerLink="/reservations" class="btn btn-secondary">
+      <span>←</span>
+      <span>返回列表</span>
+    </a>
+  </div>
+
+  <div class="create-form">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-sections">
+        <div class="form-section">
+          <div class="section-header">
+            <span class="section-icon">🏨</span>
+            <span class="section-title">选择房型与房间</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">房型 *</label>
+              <select class="form-control" formControlName="roomTypeId">
+                <option [ngValue]="null">请选择房型</option>
+                <option *ngFor="let rt of roomTypes" [ngValue]="rt.id">
+                  {{ rt.name }} - ¥{{ rt.price }}/晚
+                </option>
+              </select>
+              <div *ngIf="form.get('roomTypeId')?.invalid && form.get('roomTypeId')?.touched" class="form-error">
+                请选择房型
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">入住日期 *</label>
+              <input type="date" class="form-control" formControlName="checkInDate">
+              <div *ngIf="form.get('checkInDate')?.invalid && form.get('checkInDate')?.touched" class="form-error">
+                <span *ngIf="form.get('checkInDate')?.hasError('required')">请选择入住日期</span>
+                <span *ngIf="form.hasError('checkInPast')">入住日期不能早于今天</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">退房日期 *</label>
+              <input type="date" class="form-control" formControlName="checkOutDate">
+              <div *ngIf="form.get('checkOutDate')?.invalid && form.get('checkOutDate')?.touched" class="form-error">
+                <span *ngIf="form.get('checkOutDate')?.hasError('required')">请选择退房日期</span>
+                <span *ngIf="form.hasError('dateRangeInvalid')">退房日期必须晚于入住日期</span>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="selectedRoomType && !loading" class="price-summary">
+            <div class="summary-item">
+              <span class="summary-label">房型</span>
+              <span class="summary-value">{{ selectedRoomType.name }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">房价</span>
+              <span class="summary-value">¥{{ selectedRoomType.price }}/晚</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">入住晚数</span>
+              <span class="summary-value">{{ days }}晚</span>
+            </div>
+            <div class="summary-item total">
+              <span class="summary-label">预估总价</span>
+              <span class="summary-value">¥{{ totalAmount | number:'1.0-2' }}</span>
+            </div>
+          </div>
+
+          <div *ngIf="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <span class="loading-text">查询可用房间中...</span>
+          </div>
+
+          <div *ngIf="!loading && selectedRoomType && form.get('checkInDate')?.valid && form.get('checkOutDate')?.valid">
+            <div class="form-group">
+              <label class="form-label">选择房间 *</label>
+              <div *ngIf="availableRooms.length > 0" class="room-selector">
+                <div *ngFor="let room of availableRooms" 
+                     class="room-option"
+                     [class.selected]="form.get('roomId')?.value === room.id"
+                     (click)="form.patchValue({ roomId: room.id })">
+                  <div class="room-number">{{ room.roomNumber }}</div>
+                  <div class="room-info">
+                    <div class="room-floor">{{ room.floor }}层</div>
+                    <div class="room-status">空闲</div>
+                  </div>
+                  <div class="room-check" *ngIf="form.get('roomId')?.value === room.id">
+                    ✓
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="availableRooms.length === 0 && !loading" class="no-rooms">
+                <div class="no-rooms-icon">⚠️</div>
+                <div class="no-rooms-text">该房型在指定日期内暂无可用房间</div>
+                <div class="no-rooms-hint">请尝试选择其他房型或调整入住日期</div>
+              </div>
+              <div *ngIf="form.get('roomId')?.invalid && form.get('roomId')?.touched" class="form-error">
+                请选择房间
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-header">
+            <span class="section-icon">👤</span>
+            <span class="section-title">客人信息</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">客人姓名 *</label>
+              <input type="text" class="form-control" formControlName="guestName" placeholder="请输入客人姓名">
+              <div *ngIf="form.get('guestName')?.invalid && form.get('guestName')?.touched" class="form-error">
+                {{ formErrors.guestName }}
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">身份证号 *</label>
+              <input type="text" class="form-control" formControlName="guestIdCard" placeholder="请输入身份证号">
+              <div *ngIf="form.get('guestIdCard')?.invalid && form.get('guestIdCard')?.touched" class="form-error">
+                {{ formErrors.guestIdCard }}
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">手机号码</label>
+              <input type="tel" class="form-control" formControlName="guestPhone" placeholder="请输入手机号码">
+              <div *ngIf="form.get('guestPhone')?.invalid && form.get('guestPhone')?.touched" class="form-error">
+                {{ formErrors.guestPhone }}
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">电子邮箱</label>
+              <input type="email" class="form-control" formControlName="guestEmail" placeholder="请输入邮箱地址">
+              <div *ngIf="form.get('guestEmail')?.invalid && form.get('guestEmail')?.touched" class="form-error">
+                {{ formErrors.guestEmail }}
+              </div>
+            </div>
+          </div>
+
+          <div class="section-header" style="margin-top: 24px;">
+            <span class="section-icon">📞</span>
+            <span class="section-title">联系信息（可选）</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">联系人</label>
+              <input type="text" class="form-control" formControlName="contactPerson" placeholder="默认与客人姓名一致">
+            </div>
+            <div class="form-group">
+              <label class="form-label">联系电话</label>
+              <input type="tel" class="form-control" formControlName="contactPhone" placeholder="默认与客人电话一致">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">特殊要求</label>
+            <textarea class="form-control" formControlName="specialRequest" rows="3" 
+                      placeholder="请输入客人的特殊要求，如：需要安静房间、高楼层、无烟房等"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" routerLink="/reservations">取消</button>
+        <button type="submit" class="btn btn-primary btn-lg" [disabled]="submitting || form.invalid">
+          <span *ngIf="submitting">
+            <span class="loading-spinner" style="width: 16px; height: 16px; border-width: 2px;"></span>
+            <span style="margin-left: 8px;">创建中...</span>
+          </span>
+          <span *ngIf="!submitting">创建预订</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
